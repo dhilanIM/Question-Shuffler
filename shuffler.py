@@ -30,7 +30,8 @@ class PDFQAViewer:
         text_frame = ttk.Frame(main_frame)
         text_frame.pack(expand=True, fill=tk.BOTH)
 
-        self.text = tk.Text(text_frame, wrap=tk.WORD, font=("Georgia", 14), relief=tk.RIDGE, borderwidth=2)
+        # Create Text widget with state set to 'disabled'
+        self.text = tk.Text(text_frame, wrap=tk.WORD, font=("Georgia", 14), relief=tk.RIDGE, borderwidth=2, state='disabled')
         self.text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
         self.text.configure(bg='#ffffff', fg='#333333', padx=10, pady=10)
 
@@ -64,8 +65,7 @@ class PDFQAViewer:
                 self.show_next_question()
                 self.toggle_button.state(['!disabled'])
             except Exception as e:
-                self.text.delete(1.0, tk.END)
-                self.text.insert(tk.END, f"Error loading PDF: {str(e)}")
+                self.set_text(f"Error loading PDF: {str(e)}")
 
     def extract_qa_from_pdf(self, file_path):
         qa_pairs = []
@@ -75,7 +75,6 @@ class PDFQAViewer:
             for page in reader.pages:
                 text += page.extract_text()
 
-        # Replace multiple newlines with a single space
         text = re.sub(r'\n+', ' ', text)
         
         pattern = r'(\d+\.Q:.*?)(?=\d+\.Q:|$)'
@@ -91,30 +90,34 @@ class PDFQAViewer:
         return qa_pairs
 
     def clean_text(self, text):
-        # Remove leading/trailing whitespace and normalize spaces
         text = re.sub(r'\s+', ' ', text.strip())
         return text
+
+    def set_text(self, content, tags=None):
+        self.text.config(state='normal')
+        self.text.delete(1.0, tk.END)
+        self.text.insert(tk.END, content, tags)
+        self.text.config(state='disabled')
 
     def show_next_question(self):
         if self.qa_pairs:
             self.current_pair = random.choice(self.qa_pairs)
             self.qa_pairs.remove(self.current_pair)
-            self.text.delete(1.0, tk.END)
-            self.text.insert(tk.END, self.current_pair[0], "question")
+            self.set_text(self.current_pair[0], "question")
             self.showing_question = True
             self.toggle_button.config(text="Show Answer")
         else:
-            self.text.delete(1.0, tk.END)
-            self.text.insert(tk.END, "All questions have been shown.", "question")
+            self.set_text("All questions have been shown.", "question")
             self.toggle_button.config(text="Restart")
             self.load_button.state(['disabled'])
 
     def toggle_qa(self, event=None):
         if self.current_pair:
             if self.showing_question:
-                self.text.delete(1.0, tk.END)
-                self.text.insert(tk.END, f"{self.current_pair[0]}\n\n", "question")
+                self.set_text(f"{self.current_pair[0]}\n\n", "question")
+                self.text.config(state='normal')
                 self.text.insert(tk.END, self.current_pair[1], "answer")
+                self.text.config(state='disabled')
                 self.showing_question = False
                 self.toggle_button.config(text="Next Question")
             else:
