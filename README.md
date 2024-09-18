@@ -62,7 +62,7 @@ R: Another answer.
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/dhilanIM/Question-Shuffler).
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/dhilanIM/Question-Shuffler).
 
 
 Project Link: [https://github.com/dhilanIM/Question-Shuffler](https://github.com/dhilanIM/Question-Shuffler)
